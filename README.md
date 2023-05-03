@@ -12,20 +12,21 @@ Os dados LiDAR 3D, também conhecidos como nuvens de pontos são são algo trivi
 
 ## Objetivo
 
-Portanto, o CEM, através do Acordo de Cooperação técnica com SMUL/GeoInfo, desenvolverá aqui nesse repositório promoverá e estudará técnicas e métodos para o desenvolvimento de alguns subprodutos do ALS LiDAR 3D. A intenção é que mais pesquisas e aplicações surjam a partir da forma urbana com a facilitação e a democratização do dado.
+Portanto, o objetivo desse repositório é processar e disponibilizar resultados e análises de ambos os levantamentos, 2017 e 2020, afim de auxiliar e dialogar com as diversas disciplinas que necessitam de modelos gerados a partir dos levantamentos LiDAR 3D
 
-## Metodologia
+### Objetivos específicos
 
-Afim de padronizar os resultados, serão reprocessados os dados de 2017 com os mesmos parâmetros de 2020 afim de poder promover comparação. Os subprodutos elencados para esse processamento são aqueles básicos para o estudo da forma urbana:
+* MDS (Modelo digital de Superfície) raster matricial de 50cm e 1m de 2017 e 2020
+* MDT (Modelo digital de Terreno) raster matricial de 50cm e 1m de 2017 e 2020
+* BHM (Building Height Model) ou modelo de altura das edificações em raster matricial de 2017 e 2020
+* VHM (Vegetation Height Model) ou modelo de altura da vegetação em raster matricial de 2017 e 2020
+* Comparação (delta) de BHM e VHM no período de 2017 até 2020
+* Modelo de fiação e cabeamento aéreo da cidade
 
-- Modelo Digital de Terreno (50cm)
-- Modelo Digital de Superfície (50cm)
-- Modelo de altura das edificações (50cm e 1m)
-- Modelo de altura da vigetação (50cm e 1m)
-- Atualização da publicação 3D possibilitando a comparação
+## MAterias e métodos 
 
-Ainda disseminar as técnicas de processamento de dados LiDAR 3D todos os códigos e técnicas estarão disponíveis aqui.
+Os MDS LiDAR 3D estão disponíveis para download pelo site do GeoSampa. Eles serão baixados e processados em NoteBooks utilizando Python e o projeto Pdal
 
-## Resultados
+## REsultados
 
-A medida que os dados forem sendo processados, esse repositório será atualizado com os links para os subprodutos, códigos, técnicas e métodos
+Os resultados assim que prontos estarão disponobilizados pasta resultados
