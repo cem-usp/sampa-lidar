@@ -7,12 +7,14 @@ import glob
 import sys
 import os
 import shutil
+from multiprocessing import Pool
 
 gdf_articulacao = gpd.read_file("zip://data/SIRGAS_SHP_quadriculamdt.zip!/SIRGAS_SHP_quadriculamdt/")
 gdf_articulacao.set_crs(epsg=31983, inplace=True)
 
 DATA_DIR_2020 = '/media/fernando/DATA/LiDAR-Sampa-2020'
 DATA_DIR_2017 = '/media/fernando/DATA/LiDAR-Sampa-2017'
+RESULT_FOLDER = '/media/fernando/DATA/sampa-lidar'
 
 class Scm:
 
@@ -43,7 +45,7 @@ def pipeline(scm, ano):
             "override_srs": "EPSG:31983"
         },
         {
-            "filename":f"results/MDS-{scm}-{ano}.tiff",
+            "filename":f"{RESULT_FOLDER}/{ano}/MDS/MDS-{scm}-{ano}.tiff",
             "gdaldriver":"GTiff",
             "output_type":"max",
             "resolution":"0.5",
@@ -68,7 +70,7 @@ def pipeline(scm, ano):
             "origin_y": scm_att.origin_y,
         },
         {
-            "filename":f"results/MDT-{scm}-{ano}.tiff",
+            "filename":f"{RESULT_FOLDER}/{ano}/MDT/MDT-{scm}-{ano}.tiff",
             "type": "writers.raster",
             # "filename":f"results/DTM-{grid_number}.tiff",
             "gdaldriver":"GTiff",
@@ -78,11 +80,11 @@ def pipeline(scm, ano):
         },
         {
             "type":"filters.range",
-            "limits":"Classification[4:6]"
+            "limits":"Classification[3:6]"
         },
         {
             "type":"filters.hag_dem",
-            "raster": f"results/MDT-{scm}-{ano}.tiff",
+            "raster": f"{RESULT_FOLDER}/{ano}/MDT/MDT-{scm}-{ano}.tiff",
             "zero_ground": True
         },
         {
@@ -94,22 +96,23 @@ def pipeline(scm, ano):
             "limits":"Z[0:300]"
         },
         {
-            "filename":f"results/BHM-{scm}-{ano}.tiff",
+            "filename":f"results/{ano}/BHM/BHM-{scm}-{ano}-1m.tiff",
             "gdaldriver":"GTiff",
             "output_type":"max",
-            "resolution":"0.5",
+            "resolution":"1",
             "type": "writers.gdal",
             "gdalopts":"COMPRESS=ZSTD, PREDICTOR=3, BIGTIFF=YES",
             "width": scm_att.width,
             "height": scm_att.height,
             "origin_x": scm_att.origin_x,
             "origin_y": scm_att.origin_y,
+            "nodata":"0",
             "data_type": "float32",
             "where": "(Classification == 6)",
             "default_srs": "EPSG:31983"
         },
         {
-            "filename":f"results/VHM-{scm}-{ano}.tiff",
+            "filename":f"{RESULT_FOLDER}/{ano}/BHM/BHM-{scm}-{ano}-50cm.tiff",
             "gdaldriver":"GTiff",
             "output_type":"max",
             "resolution":"0.5",
@@ -119,22 +122,51 @@ def pipeline(scm, ano):
             "height": scm_att.height,
             "origin_x": scm_att.origin_x,
             "origin_y": scm_att.origin_y,
-            # "nodata":"0",
+            "nodata":"0",
             "data_type": "float32",
-            "where": "(Classification == 4 || Classification == 5)",
+            "where": "(Classification == 6)",
+            "default_srs": "EPSG:31983"
+        },
+        {
+            "filename":f"results/{ano}/VHM/VHM-{scm}-{ano}-1m.tiff",
+            "gdaldriver":"GTiff",
+            "output_type":"max",
+            "resolution":"1",
+            "type": "writers.gdal",
+            "gdalopts":"COMPRESS=ZSTD, PREDICTOR=3, BIGTIFF=YES",
+            "width": scm_att.width,
+            "height": scm_att.height,
+            "origin_x": scm_att.origin_x,
+            "origin_y": scm_att.origin_y,
+            "nodata":"0",
+            "data_type": "float32",
+            "where": "(Classification == 3 || Classification == 4 || Classification == 5)",
+            "default_srs": "EPSG:31983"
+        },
+        {
+            "filename":f"{RESULT_FOLDER}/{ano}/VHM/VHM-{scm}-{ano}-50cm.tiff",
+            "gdaldriver":"GTiff",
+            "output_type":"max",
+            "resolution":"0.5",
+            "type": "writers.gdal",
+            "gdalopts":"COMPRESS=ZSTD, PREDICTOR=3, BIGTIFF=YES",
+            "width": scm_att.width,
+            "height": scm_att.height,
+            "origin_x": scm_att.origin_x,
+            "origin_y": scm_att.origin_y,
+            "nodata":"0",
+            "data_type": "float32",
+            "where": "(Classification == 3 || Classification == 4 || Classification == 5)",
             "default_srs": "EPSG:31983"
         }
     ]
     return pipeline
 
-def pipeline_2020(scm):
-    # Retorna o json com o Pipeline para o determinado SCM
-    return None
-
-
 def processo(scm):
-    ## TODO
-    # Verifica se o processamento já foi relaizado para o SCM
+    # Verifica se o processamento já foi realizado para o SCM
+    if len(glob.glob(f"{RESULT_FOLDER}/2017/MDS/MDS-{scm}-2017.tiff")) > 0 and len(glob.glob(f"{RESULT_FOLDER}/2020/MDS/MDS-{scm}-2020.tiff")) > 0:
+        print(f'SCM {scm} processado anteriormente')
+        return None
 
     # Copia arquivos de 2017 e 2020 para uma pasta temporária
     file_2017 = glob.glob(f'{DATA_DIR_2017}/*{scm}*.laz')
@@ -145,32 +177,29 @@ def processo(scm):
     shutil.copy(file_2017[0], f'temp/2017-{scm}.laz')
     shutil.copy(file_2020[0], f'temp/2020-{scm}.laz')
   
-    # Processa o PDAL para cada ano
-        # MDT
-        # MDS
-        # BHM
-        # VHM
+    # Processa o PDAL para cada ano: MDT, MDS, BHM, VHM
     mdt_mds = pdal.Pipeline(json.dumps(pipeline(scm, 2017)))
     n_points = mdt_mds.execute()
-    print(f'Executando MDT/MDS com {n_points} pontos')
+    # print(f'Executando MDT/MDS com {n_points} pontos')
 
     mdt_mds = pdal.Pipeline(json.dumps(pipeline(scm, 2020)))
     n_points = mdt_mds.execute()
-    print(f'Executando MDT/MDS com {n_points} pontos')
-
-    ## TODO
-    # Copia os resultados para as pastas apropriadas
+    # print(f'Executando MDT/MDS com {n_points} pontos')
 
     # Exclui os arquivos da pasta temporária
-    # os.remove(f'temp/2017-{scm}.laz')
-    # os.remove(f'temp/2020-{scm}.laz')
+    os.remove(f'temp/2017-{scm}.laz')
+    os.remove(f'temp/2020-{scm}.laz')
+    
+    print(f'Processado {scm}')
     
     return None
 
 def processa_tudo():
     # Itera sobre todos os SCMs
     # Utilizando multiprocessamento
-    print(Scm('3315-361').origin_x)
+    scms = gdf_articulacao.loc[:, 'qmdt_cod'].to_list()
+    with Pool(12) as p:
+        _ = p.starmap(processo, zip(scms))
     return None
 
 def main():
@@ -178,7 +207,12 @@ def main():
     if len(sys.argv) > 1:
         # Processa os SCMS na sequencia
         for scm in sys.argv[1:]:
-            processo(scm)
+            if len(scm) == 4:
+                scms = gdf_articulacao.loc[gdf_articulacao.qmdt_cod.str.startswith(scm), 'qmdt_cod'].to_list()
+                with Pool(12) as p:
+                    _ = p.starmap(processo, zip(scms))
+            else:
+                processo(scm)
     else:
         print(gdf_articulacao.shape)
         processa_tudo()

@@ -1,2 +1,4 @@
 temp/
-results/
+results/*.tiff
+results/2020
+results/2017
