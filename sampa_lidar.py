@@ -10,6 +10,9 @@ import shutil
 from multiprocessing import Pool
 
 gdf_articulacao = gpd.read_file("zip://data/SIRGAS_SHP_quadriculamdt.zip!/SIRGAS_SHP_quadriculamdt/")
+# REMOVE SCM 3445-232, 3443-464 que não estão disponíveis para download em 2020
+
+gdf_articulacao = gdf_articulacao[~gdf_articulacao.qmdt_cod.isin(['3445-232', '3443-464','2344-342', "3343-353", '2326-323', '3345-121', '2346-121'])]
 gdf_articulacao.set_crs(epsg=31983, inplace=True)
 
 DATA_DIR_2020 = '/media/fernando/DATA/LiDAR-Sampa-2020'
@@ -174,6 +177,8 @@ def processo(scm):
     if len(file_2017) != 1 or len(file_2020) != 1:
         raise ValueError(f'Os arquivos do {scm} parecem não conforme!')
     
+    print(f'Processando {scm}')
+
     shutil.copy(file_2017[0], f'temp/2017-{scm}.laz')
     shutil.copy(file_2020[0], f'temp/2020-{scm}.laz')
   
@@ -200,6 +205,8 @@ def processa_tudo():
     scms = gdf_articulacao.loc[:, 'qmdt_cod'].to_list()
     with Pool(12) as p:
         _ = p.starmap(processo, zip(scms))
+    # for scm in scms:
+    #     processo(scm)
     return None
 
 def main():
