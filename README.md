@@ -18,7 +18,7 @@ Portanto, o objetivo desse repositório é processar e disponibilizar resultados
 
 * MDS (Modelo digital de Superfície) raster matricial de 50cm e 1m de 2017 e 2020
 * MDT (Modelo digital de Terreno) raster matricial de 50cm e 1m de 2017 e 2020
-* BHM (Building Height Model) ou modelo de altura das edificações em raster matricial de 2017 e 2020
+* BHM (Building Height Model) ou modelo de altura das edificações em raster matricial de 2017 e 2020 (https://www.kaggle.com/datasets/centrodametropole/sao-paulo-building-height-model/)
 * VHM (Vegetation Height Model) ou modelo de altura da vegetação em raster matricial de 2017 e 2020
 * Comparação (delta) de BHM e VHM no período de 2017 até 2020
 * Modelo de fiação e cabeamento aéreo da cidade
