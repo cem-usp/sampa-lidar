@@ -8,7 +8,7 @@ Levantamentos LiDAR 3D são um cenário cada vez mais corriqueiro nas cidades ao
 
 ## Motivação
 
-Os dados LiDAR 3D, também conhecidos como nuvens de pontos são são algo trivial de trabalhar, sobretudo em uma cidade com as dimensões de São Paulo. No entanto, a informação sobre a forma urbana pode ser extraída e processada afim de democratizar mais o acesso a esse levantamento.
+Os dados LiDAR 3D, também conhecidos como nuvens de pontos não são algo trivial de trabalhar, sobretudo em uma cidade com as dimensões de São Paulo. No entanto, a informação sobre a forma urbana pode ser extraída e processada afim de democratizar mais o acesso a esse levantamento.
 
 ## Objetivo
 
