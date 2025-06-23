@@ -13,7 +13,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 import pdal   # bindings Python do PDAL
 
 # =============== CONFIGURAÇÕES ================= #
-ANO = 2017
+ANO = 2024
 PASTA_LAZ   = Path(f"../LiDAR-Sampa-{ANO}")       # pasta onde estão os .laz
 PASTA_OUT   = Path(f"../LiDAR_produtos/{ANO}/presenca_de_pontos")   # pasta de saída dos .tif
 PIXEL_SIZE  = 1.0                 # metros
