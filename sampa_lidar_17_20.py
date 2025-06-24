@@ -15,9 +15,9 @@ gdf_articulacao = gpd.read_file("zip://data/SIRGAS_SHP_quadriculamdt.zip!/SIRGAS
 gdf_articulacao = gdf_articulacao[~gdf_articulacao.qmdt_cod.isin(['3445-232', '3443-464','2344-342', "3343-353", '2326-323', '3345-121', '2346-121'])]
 gdf_articulacao.set_crs(epsg=31983, inplace=True)
 
-DATA_DIR_2020 = '/media/fernando/DATA/LiDAR-Sampa-2020'
-DATA_DIR_2017 = '/media/fernando/DATA/LiDAR-Sampa-2017'
-RESULT_FOLDER = '/media/fernando/DATA/sampa-lidar'
+DATA_DIR_2020 = '/Users/fernandogomes/dev/LiDAR-Sampa-2020'
+DATA_DIR_2017 = '/Users/fernandogomes/dev/LiDAR-Sampa-2017'
+RESULT_FOLDER = '/Users/fernandogomes/dev/LiDAR_produtos'
 
 class Scm:
 
@@ -35,7 +35,6 @@ class Scm:
         self.height = height
         self.origin_x = origin_x
         self.origin_y = origin_y
-
     
 
 def pipeline(scm, ano):
@@ -59,6 +58,20 @@ def pipeline(scm, ano):
             "origin_x": scm_att.origin_x,
             "origin_y": scm_att.origin_y,
             "default_srs": "EPSG:31983"
+        },
+        {
+            "filename":f"{RESULT_FOLDER}/{ano}/MDT-points/MDT-points-{scm}-{ano}.tiff",
+            "gdaldriver":"GTiff",
+            "output_type":"max",
+            "resolution":"0.5",
+            "type": "writers.gdal",
+            "gdalopts":"COMPRESS=ZSTD, PREDICTOR=3, BIGTIFF=YES",
+            "width": scm_att.width,
+            "height": scm_att.height,
+            "origin_x": scm_att.origin_x,
+            "origin_y": scm_att.origin_y,
+            "default_srs": "EPSG:31983",
+            "where": "(Classification == 2)"
         },
         {
             "type": "filters.delaunay",
@@ -98,22 +111,22 @@ def pipeline(scm, ano):
             "type":"filters.range",
             "limits":"Z[0:300]"
         },
-        {
-            "filename":f"results/{ano}/BHM/BHM-{scm}-{ano}-1m.tiff",
-            "gdaldriver":"GTiff",
-            "output_type":"max",
-            "resolution":"1",
-            "type": "writers.gdal",
-            "gdalopts":"COMPRESS=ZSTD, PREDICTOR=3, BIGTIFF=YES",
-            "width": scm_att.width,
-            "height": scm_att.height,
-            "origin_x": scm_att.origin_x,
-            "origin_y": scm_att.origin_y,
-            "nodata":"0",
-            "data_type": "float32",
-            "where": "(Classification == 6)",
-            "default_srs": "EPSG:31983"
-        },
+        # {
+        #     "filename":f"results/{ano}/BHM/BHM-{scm}-{ano}-1m.tiff",
+        #     "gdaldriver":"GTiff",
+        #     "output_type":"max",
+        #     "resolution":"1",
+        #     "type": "writers.gdal",
+        #     "gdalopts":"COMPRESS=ZSTD, PREDICTOR=3, BIGTIFF=YES",
+        #     "width": scm_att.width,
+        #     "height": scm_att.height,
+        #     "origin_x": scm_att.origin_x,
+        #     "origin_y": scm_att.origin_y,
+        #     "nodata":"0",
+        #     "data_type": "float32",
+        #     "where": "(Classification == 6)",
+        #     "default_srs": "EPSG:31983"
+        # },
         {
             "filename":f"{RESULT_FOLDER}/{ano}/BHM/BHM-{scm}-{ano}-50cm.tiff",
             "gdaldriver":"GTiff",
@@ -130,22 +143,22 @@ def pipeline(scm, ano):
             "where": "(Classification == 6)",
             "default_srs": "EPSG:31983"
         },
-        {
-            "filename":f"results/{ano}/VHM/VHM-{scm}-{ano}-1m.tiff",
-            "gdaldriver":"GTiff",
-            "output_type":"max",
-            "resolution":"1",
-            "type": "writers.gdal",
-            "gdalopts":"COMPRESS=ZSTD, PREDICTOR=3, BIGTIFF=YES",
-            "width": scm_att.width,
-            "height": scm_att.height,
-            "origin_x": scm_att.origin_x,
-            "origin_y": scm_att.origin_y,
-            "nodata":"0",
-            "data_type": "float32",
-            "where": "(Classification == 3 || Classification == 4 || Classification == 5)",
-            "default_srs": "EPSG:31983"
-        },
+        # {
+        #     "filename":f"results/{ano}/VHM/VHM-{scm}-{ano}-1m.tiff",
+        #     "gdaldriver":"GTiff",
+        #     "output_type":"max",
+        #     "resolution":"1",
+        #     "type": "writers.gdal",
+        #     "gdalopts":"COMPRESS=ZSTD, PREDICTOR=3, BIGTIFF=YES",
+        #     "width": scm_att.width,
+        #     "height": scm_att.height,
+        #     "origin_x": scm_att.origin_x,
+        #     "origin_y": scm_att.origin_y,
+        #     "nodata":"0",
+        #     "data_type": "float32",
+        #     "where": "(Classification == 3 || Classification == 4 || Classification == 5)",
+        #     "default_srs": "EPSG:31983"
+        # },
         {
             "filename":f"{RESULT_FOLDER}/{ano}/VHM/VHM-{scm}-{ano}-50cm.tiff",
             "gdaldriver":"GTiff",
@@ -161,6 +174,20 @@ def pipeline(scm, ano):
             "data_type": "float32",
             "where": "(Classification == 3 || Classification == 4 || Classification == 5)",
             "default_srs": "EPSG:31983"
+        },
+        {
+            "type": "filters.range",
+            "limits": "Classification[6:6]"
+        },
+        {
+            "type":"filters.voxeldownsize",
+            "cell":0.5,
+            "mode":"center"
+        },
+        {
+            "type":"writers.las",
+            "filename":f"{RESULT_FOLDER}/{ano}/LiDAR/buildings-{scm}-{ano}-50cm.laz",
+            "compression":"laszip"
         }
     ]
     return pipeline
