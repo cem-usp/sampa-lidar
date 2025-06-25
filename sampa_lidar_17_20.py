@@ -194,8 +194,8 @@ def pipeline(scm, ano):
 
 def processo(scm):
     # Verifica se o processamento já foi realizado para o SCM
-    if len(glob.glob(f"{RESULT_FOLDER}/2017/MDS/MDS-{scm}-2017.tiff")) > 0 and len(glob.glob(f"{RESULT_FOLDER}/2020/MDS/MDS-{scm}-2020.tiff")) > 0:
-        print(f'SCM {scm} processado anteriormente')
+    if len(glob.glob(f"{RESULT_FOLDER}/2020/LiDAR/buildings-{scm}-2020-50cm.laz")) > 0 and len(glob.glob(f"{RESULT_FOLDER}/2017/LiDAR/buildings-{scm}-2017-50cm.laz")) > 0:
+        # print(f'SCM {scm} processado anteriormente')
         return None
 
     # Copia arquivos de 2017 e 2020 para uma pasta temporária
