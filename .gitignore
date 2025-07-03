@@ -2,3 +2,6 @@ temp/
 results/*.tiff
 results/2020
 results/2017
+data/SIRGAS_GPKG_quadraviariaed_2017.gpkg
+data/quadras_viarias.gpkg
+results/*

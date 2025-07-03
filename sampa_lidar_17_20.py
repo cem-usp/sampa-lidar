@@ -99,6 +99,12 @@ def pipeline(scm, ano):
             "limits":"Classification[3:6]"
         },
         {
+            "type": "filters.outlier",
+            "method": "statistical",
+            "mean_k": 8,
+            "multiplier": 2.0
+        },  
+        {
             "type":"filters.hag_dem",
             "raster": f"{RESULT_FOLDER}/{ano}/MDT/MDT-{scm}-{ano}.tiff",
             "zero_ground": True
